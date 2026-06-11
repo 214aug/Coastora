@@ -65,7 +65,19 @@
   .nav-links a:hover{opacity:1}
   .nav-cta{border:1px solid currentColor;border-radius:0;padding:12px 24px;opacity:1 !important;transition:background .3s,color .3s !important}
   .nav-cta:hover{background:var(--brass);border-color:var(--brass);color:var(--pine) !important}
-  @media(max-width:820px){.nav-links a:not(.nav-cta){display:none}}
+  .burger{display:none;background:none;border:0;cursor:pointer;padding:10px;margin-left:8px;color:var(--stone);transition:color .4s}
+  nav.solid .burger,nav.nav-open .burger{color:var(--pine)}
+  .burger span{display:block;width:22px;height:2px;background:currentColor;margin:5px 0;transition:transform .3s,opacity .3s}
+  .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .burger.open span:nth-child(2){opacity:0}
+  .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+  .mobile-menu{display:none;background:var(--stone);border-top:1px solid rgba(43,43,40,.12)}
+  .mobile-menu.open{display:block}
+  .mobile-menu a{display:block;padding:17px 5vw;font-size:13px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--pine);text-decoration:none;border-bottom:1px solid rgba(43,43,40,.08)}
+  nav.nav-open{background:rgba(242,239,231,.97);backdrop-filter:blur(12px)}
+  nav.nav-open .logo{color:var(--pine)}
+  @media(min-width:821px){.mobile-menu{display:none !important}}
+  @media(max-width:820px){.nav-links{display:none}.burger{display:block}}
 
   /* ── hero ── */
   .hero{position:relative;height:100svh;min-height:640px;padding:0;display:flex;align-items:flex-end;overflow:hidden;background:var(--pine)}
@@ -318,6 +330,14 @@
       <a href="about.html" data-hover>About</a>
       <a class="nav-cta" href="index.html#book" data-hover>Book a call</a>
     </div>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="process.html">Process</a>
+    <a href="about.html">About</a>
+    <a href="index.html#book">Book a call</a>
   </div>
 </nav>
 
@@ -637,6 +657,24 @@
   const navAlwaysSolid = nav.classList.contains('solid') && !document.querySelector('.hero');
   const onScroll = () => { if(!navAlwaysSolid) nav.classList.toggle('solid', window.scrollY > window.innerHeight * .82); };
   window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  // mobile menu
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (burger && mobileMenu){
+    burger.addEventListener('click', ()=>{
+      const open = mobileMenu.classList.toggle('open');
+      burger.classList.toggle('open', open);
+      nav.classList.toggle('nav-open', open);
+      burger.setAttribute('aria-expanded', open);
+      burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    });
+    mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>{
+      mobileMenu.classList.remove('open');
+      burger.classList.remove('open');
+      nav.classList.remove('nav-open');
+    }));
+  }
 
   // ── word rotator ──
   const rotEl = document.getElementById('rotator');
