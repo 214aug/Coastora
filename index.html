@@ -766,12 +766,40 @@
   seqUpdate();
   }
 
-  // lead form (front-end only. TODO: wire to Formspree/backend)
+  // lead form: sends to hello@coastora.co via FormSubmit
   const leadForm = document.getElementById('leadForm');
-  if (leadForm) leadForm.addEventListener('submit', e=>{
+  if (leadForm) leadForm.addEventListener('submit', async e=>{
     e.preventDefault();
-    if(!e.target.reportValidity()) return;
-    e.target.classList.add('is-sent');
+    const form = e.target;
+    if(!form.reportValidity()) return;
+    const btn = form.querySelector('button[type=submit]');
+    const btnHTML = btn.innerHTML;
+    btn.innerHTML = 'Sending\u2026'; btn.disabled = true;
+    const data = {
+      name: form.name.value,
+      email: form.email.value,
+      phone: form.phone.value,
+      bedrooms: form.bedrooms.value,
+      address: form.address.value,
+      message: form.message.value,
+      _subject: 'New property assessment request \u00b7 coastora.co'
+    };
+    try{
+      const res = await fetch('https://formsubmit.co/ajax/hello@coastora.co', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify(data)
+      });
+      if(!res.ok) throw new Error('send failed');
+      form.classList.add('is-sent');
+    }catch(err){
+      // fallback: open the visitor's email client prefilled, so no lead is lost
+      const body = encodeURIComponent(
+        'Name: '+data.name+'\nEmail: '+data.email+'\nPhone: '+data.phone+
+        '\nBedrooms: '+data.bedrooms+'\nAddress: '+data.address+'\n\n'+data.message);
+      window.location.href = 'mailto:hello@coastora.co?subject='+encodeURIComponent(data._subject)+'&body='+body;
+      btn.innerHTML = btnHTML; btn.disabled = false;
+    }
   });
 </script>
 </body>
